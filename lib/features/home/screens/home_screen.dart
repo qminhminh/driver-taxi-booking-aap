@@ -1,11 +1,15 @@
-// ignore_for_file: unnecessary_import
+// ignore_for_file: unnecessary_import, unnecessary_null_comparison, avoid_print
 
+import 'package:driver_taxi_booking_app/features/home/services/home_services.dart';
 import 'package:driver_taxi_booking_app/global/global_var.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/services.dart';
+import 'package:flutter_geofire/flutter_geofire.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -25,6 +29,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Color colorToShow = Colors.green;
   String titleToShow = "GO ONLINE NOW";
   bool isDriverAvailable = false;
+  DatabaseReference? newTripRequestReference;
+  final HomeService homeService = HomeService();
+  late Timer _timer;
+  bool time = false;
 
   void updateMapTheme(GoogleMapController controller) {
     getJsonFileFromThemes("themes/night_style.json")
@@ -54,6 +62,88 @@ class _HomeScreenState extends State<HomeScreen> {
         CameraPosition(target: positionOfUserInLatLng, zoom: 15);
     controllerGoogleMap!
         .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+  }
+
+  goOnlineNow() {
+    setState(() {
+      time = true;
+    });
+    // test
+    homeService.updateAndsavegeofire(
+        context: context,
+        uid: FirebaseAuth.instance.currentUser!.uid,
+        latitude: currentPositionOfUser!.latitude,
+        longtitude: currentPositionOfUser!.longitude);
+
+    _timer = Timer.periodic(const Duration(seconds: 7), (Timer timer) {
+      if (time) {
+        homeService.updateLongandLat(
+            context: context,
+            uid: FirebaseAuth.instance.currentUser!.uid,
+            latitude: currentPositionOfUser!.latitude,
+            longtitude: currentPositionOfUser!.longitude);
+      }
+    });
+
+    //all drivers who are Available for new trip requests
+    Geofire.initialize("onlineDrivers");
+
+    Geofire.setLocation(
+      FirebaseAuth.instance.currentUser!.uid,
+      homeService.lat!.toDouble(),
+      homeService.long!.toDouble(),
+    );
+
+    newTripRequestReference = FirebaseDatabase.instance
+        .ref()
+        .child("drivers")
+        .child(FirebaseAuth.instance.currentUser!.uid)
+        .child("newTripStatus");
+    newTripRequestReference!.set("waiting");
+
+    newTripRequestReference!.onValue.listen((event) {});
+  }
+
+  setAndGetLocationUpdates() {
+    positionStreamHomePage =
+        Geolocator.getPositionStream().listen((Position position) {
+      currentPositionOfUser = position;
+
+      if (isDriverAvailable == true) {
+        Geofire.setLocation(
+          FirebaseAuth.instance.currentUser!.uid,
+          homeService.lat!.toDouble(),
+          homeService.long!.toDouble(),
+        );
+      }
+
+      LatLng positionLatLng = LatLng(position.latitude, position.longitude);
+      controllerGoogleMap!
+          .animateCamera(CameraUpdate.newLatLng(positionLatLng));
+    });
+  }
+
+  goOfflineNow() {
+    time = false;
+    _timer.cancel();
+
+    Timer? tempTimer = _timer;
+    if (tempTimer != null && tempTimer.isActive) {
+      tempTimer.cancel();
+      print("Timer stopped");
+    }
+    _timer = Timer(Duration.zero, () {});
+
+    homeService.deleteGeofireDriverOnline(
+        context: context, idf: FirebaseAuth.instance.currentUser!.uid);
+
+    //stop sharing driver live location updates
+    Geofire.removeLocation(FirebaseAuth.instance.currentUser!.uid);
+
+    //stop listening to the newTripStatus
+    newTripRequestReference!.onDisconnect();
+    newTripRequestReference!.remove();
+    newTripRequestReference = null;
   }
 
   @override
@@ -165,7 +255,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                           onPressed: () {
                                             if (!isDriverAvailable) {
                                               //go online
+                                              goOnlineNow();
                                               //get driver location updates
+                                              setAndGetLocationUpdates();
 
                                               Navigator.pop(context);
 
@@ -176,6 +268,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               });
                                             } else {
                                               //go offline
+                                              goOfflineNow();
 
                                               Navigator.pop(context);
 
