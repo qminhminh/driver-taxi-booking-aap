@@ -23,6 +23,7 @@ class AuthSerVice {
     required String carColor,
     required String carModel,
     required String carNumber,
+    required String idf,
   }) async {
     try {
       User user = User(
@@ -39,6 +40,7 @@ class AuthSerVice {
         carNumber: carNumber,
         deviceToken: '',
         newTripStatus: '',
+        idf: idf,
       );
 
       http.Response res = await http.post(

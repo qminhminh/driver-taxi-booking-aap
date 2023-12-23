@@ -14,22 +14,23 @@ class User {
   final String newTripStatus;
   final String phone;
   final String photo;
+  final String idf;
 
-  User({
-    required this.id,
-    required this.blockStatus,
-    required this.carColor,
-    required this.carModel,
-    required this.carNumber,
-    required this.deviceToken,
-    required this.token,
-    required this.email,
-    required this.password,
-    required this.name,
-    required this.newTripStatus,
-    required this.phone,
-    required this.photo,
-  });
+  User(
+      {required this.id,
+      required this.blockStatus,
+      required this.carColor,
+      required this.carModel,
+      required this.carNumber,
+      required this.deviceToken,
+      required this.token,
+      required this.email,
+      required this.password,
+      required this.name,
+      required this.newTripStatus,
+      required this.phone,
+      required this.photo,
+      required this.idf});
 
   Map<String, dynamic> toMap() {
     return {
@@ -46,6 +47,7 @@ class User {
       'newTripStatus': newTripStatus,
       'phone': phone,
       'photo': photo,
+      'idf': idf,
     };
   }
 
@@ -64,6 +66,7 @@ class User {
       newTripStatus: map['newTripStatus'] ?? '',
       phone: map['phone'] ?? '',
       photo: map['photo'] ?? '',
+      idf: map['idf'] ?? '',
     );
   }
 
@@ -85,6 +88,7 @@ class User {
     String? newTripStatus,
     String? phone,
     String? photo,
+    String? idf,
   }) {
     return User(
       id: id ?? this.id,
@@ -100,6 +104,7 @@ class User {
       newTripStatus: newTripStatus ?? this.newTripStatus,
       phone: phone ?? this.phone,
       photo: photo ?? this.photo,
+      idf: idf ?? this.idf,
     );
   }
 }

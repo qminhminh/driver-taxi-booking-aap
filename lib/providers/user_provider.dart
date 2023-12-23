@@ -16,6 +16,7 @@ class UserProvider extends ChangeNotifier {
     newTripStatus: '',
     phone: '',
     photo: '',
+    idf: '',
   );
 
   User get user => _user;

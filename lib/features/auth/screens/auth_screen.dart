@@ -4,6 +4,7 @@ import 'package:driver_taxi_booking_app/common/widgets/custom_button.dart';
 import 'package:driver_taxi_booking_app/common/widgets/custom_textdield.dart';
 import 'package:driver_taxi_booking_app/constants/global_variables.dart';
 import 'package:driver_taxi_booking_app/features/auth/services/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -58,6 +59,7 @@ class _AuthScreenState extends State<AuthScreen> {
       carColor: _carColorController.text,
       carModel: _carModelController.text,
       carNumber: _carNumberController.text,
+      idf: FirebaseAuth.instance.currentUser!.uid,
     );
   }
 
