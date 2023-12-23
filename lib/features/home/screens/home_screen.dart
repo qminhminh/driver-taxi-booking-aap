@@ -35,7 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool time = false;
 
   void updateMapTheme(GoogleMapController controller) {
-    getJsonFileFromThemes("themes/night_style.json")
+    getJsonFileFromThemes("themes/dark_style.json")
         .then((value) => setGoogleMapStyle(value, controller));
   }
 
