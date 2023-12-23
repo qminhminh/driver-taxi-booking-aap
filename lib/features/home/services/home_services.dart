@@ -6,6 +6,7 @@ import 'package:driver_taxi_booking_app/constants/error_handing.dart';
 import 'package:driver_taxi_booking_app/constants/global_variables.dart';
 import 'package:driver_taxi_booking_app/constants/utils.dart';
 import 'package:driver_taxi_booking_app/providers/user_provider.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -13,6 +14,7 @@ import 'package:provider/provider.dart';
 class HomeService {
   double? lat;
   double? long;
+  FirebaseMessaging firebaseCloudMessaging = FirebaseMessaging.instance;
   void updateAndsavegeofire({
     required BuildContext context,
     required String uid,
@@ -107,6 +109,36 @@ class HomeService {
           context: context,
           onSuccess: () {
             showSnackBar(context, "Offline Successfull");
+          });
+    } catch (e) {
+      showSnackBar(context, e.toString());
+    }
+  }
+
+  upatedeviceToken({
+    required BuildContext context,
+  }) async {
+    try {
+      String? deviceRecognitionToken = await firebaseCloudMessaging.getToken();
+      final userprovider = Provider.of<UserProvider>(context, listen: false);
+      http.Response res =
+          await http.put(Uri.parse('$uri/api/users/update-tokendevice/driver'),
+              headers: {
+                'Content-Type': 'application/json; charset=UTF-8',
+                'x-auth-token': userprovider.user.token
+              },
+              body: jsonEncode({
+                'email': userprovider.user.email,
+                'devicetoken': deviceRecognitionToken,
+              }));
+
+      print(res.body);
+
+      httpErrorHandle(
+          response: res,
+          context: context,
+          onSuccess: () {
+            showSnackBar(context, 'Update device token');
           });
     } catch (e) {
       showSnackBar(context, e.toString());
