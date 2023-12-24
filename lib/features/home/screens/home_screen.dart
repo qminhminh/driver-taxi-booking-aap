@@ -1,4 +1,4 @@
-// ignore_for_file: unnecessary_import, unnecessary_null_comparison, avoid_print
+// ignore_for_file: unnecessary_import, unnecessary_null_comparison, avoid_print, prefer_if_null_operators
 
 import 'package:driver_taxi_booking_app/api/pushNotification/push_notification_system.dart';
 import 'package:driver_taxi_booking_app/features/home/services/home_services.dart';
@@ -91,8 +91,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
     Geofire.setLocation(
       FirebaseAuth.instance.currentUser!.uid,
-      homeService.lat!.toDouble(),
-      homeService.long!.toDouble(),
+      homeService.lat!.toDouble() != null
+          ? homeService.lat!.toDouble()
+          : currentPositionOfUser!.latitude,
+      homeService.long!.toDouble() != null
+          ? homeService.lat!.toDouble()
+          : currentPositionOfUser!.latitude,
     );
 
     newTripRequestReference = FirebaseDatabase.instance
@@ -150,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
   initializePushNotificationSystem() {
     PushNotificationSystem notificationSystem = PushNotificationSystem();
     notificationSystem.generateDeviceRegistrationToken();
-    notificationSystem.startListeningForNewNotification();
+    notificationSystem.startListeningForNewNotification(context);
 
     homeService.upatedeviceToken(context: context);
   }

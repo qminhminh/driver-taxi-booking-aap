@@ -1,11 +1,20 @@
-// ignore_for_file: body_might_complete_normally_nullable, unused_local_variable
+// ignore_for_file: body_might_complete_normally_nullable, unused_local_variable, prefer_if_null_operators
 
+import 'package:assets_audio_player/assets_audio_player.dart';
+import 'package:driver_taxi_booking_app/api/services/pushnotice_services.dart';
+import 'package:driver_taxi_booking_app/global/global_var.dart';
+import 'package:driver_taxi_booking_app/models/trip_details.dart';
+import 'package:driver_taxi_booking_app/widgets/loading_dialog.dart';
+import 'package:driver_taxi_booking_app/widgets/notification_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class PushNotificationSystem {
   FirebaseMessaging firebaseCloudMessaging = FirebaseMessaging.instance;
+  final PushNoticeServices pushNoticeServices = PushNoticeServices();
 
   Future<String?> generateDeviceRegistrationToken() async {
     String? deviceRecognitionToken = await firebaseCloudMessaging.getToken();
@@ -22,7 +31,7 @@ class PushNotificationSystem {
     firebaseCloudMessaging.subscribeToTopic("users");
   }
 
-  startListeningForNewNotification() async {
+  startListeningForNewNotification(BuildContext context) async {
     ///1. Terminated
     //When the app is completely closed and it receives a push notification
     FirebaseMessaging.instance
@@ -30,6 +39,9 @@ class PushNotificationSystem {
         .then((RemoteMessage? messageRemote) {
       if (messageRemote != null) {
         String tripID = messageRemote.data["tripID"];
+        pushNoticeServices.getTripRequest(context: context, tripId: tripID);
+
+        retrieveTripRequestInfo(tripID, context);
       }
     });
 
@@ -38,6 +50,9 @@ class PushNotificationSystem {
     FirebaseMessaging.onMessage.listen((RemoteMessage? messageRemote) {
       if (messageRemote != null) {
         String tripID = messageRemote.data["tripID"];
+        pushNoticeServices.getTripRequest(context: context, tripId: tripID);
+
+        retrieveTripRequestInfo(tripID, context);
       }
     });
 
@@ -46,7 +61,74 @@ class PushNotificationSystem {
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage? messageRemote) {
       if (messageRemote != null) {
         String tripID = messageRemote.data["tripID"];
+        pushNoticeServices.getTripRequest(context: context, tripId: tripID);
+
+        retrieveTripRequestInfo(tripID, context);
       }
+    });
+  }
+
+  retrieveTripRequestInfo(String tripID, BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) =>
+          LoadingDialog(messageText: "getting details..."),
+    );
+
+    DatabaseReference tripRequestsRef =
+        FirebaseDatabase.instance.ref().child("tripRequests").child(tripID);
+
+    tripRequestsRef.once().then((dataSnapshot) {
+      Navigator.pop(context);
+
+      audioPlayer.open(
+        Audio("assets/audio/alert_sound.mp3"),
+      );
+
+      audioPlayer.play();
+
+      TripDetails tripDetailsInfo = TripDetails();
+      double pickUpLat = pushNoticeServices.pickUpLat != null
+          ? pushNoticeServices.pickUpLat!
+          : double.parse((dataSnapshot.snapshot.value! as Map)["pickUpLatLng"]
+              ["latitude"]);
+      double pickUpLng = pushNoticeServices.pickUpLng != null
+          ? pushNoticeServices.pickUpLng!
+          : double.parse((dataSnapshot.snapshot.value! as Map)["pickUpLatLng"]
+              ["longitude"]);
+      tripDetailsInfo.pickUpLatLng = LatLng(pickUpLat, pickUpLng);
+
+      tripDetailsInfo.pickupAddress =
+          (dataSnapshot.snapshot.value! as Map)["pickUpAddress"];
+
+      double dropOffLat = pushNoticeServices.dropOffLat != null
+          ? pushNoticeServices.dropOffLat!
+          : double.parse((dataSnapshot.snapshot.value! as Map)["dropOffLatLng"]
+              ["latitude"]);
+      double dropOffLng = pushNoticeServices.dropOffLng != null
+          ? pushNoticeServices.dropOffLng!
+          : double.parse((dataSnapshot.snapshot.value! as Map)["dropOffLatLng"]
+              ["longitude"]);
+      tripDetailsInfo.dropOffLatLng = LatLng(dropOffLat, dropOffLng);
+
+      tripDetailsInfo.dropOffAddress = pushNoticeServices.dropOffAddress != null
+          ? pushNoticeServices.dropOffAddress
+          : (dataSnapshot.snapshot.value! as Map)["dropOffAddress"];
+
+      tripDetailsInfo.userName = pushNoticeServices.userName != null
+          ? pushNoticeServices.userName
+          : (dataSnapshot.snapshot.value! as Map)["userName"];
+      tripDetailsInfo.userPhone = pushNoticeServices.userPhone != null
+          ? pushNoticeServices.userPhone
+          : (dataSnapshot.snapshot.value! as Map)["userPhone"];
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => NotificationDialog(
+          tripDetailsInfo: tripDetailsInfo,
+        ),
+      );
     });
   }
 }
