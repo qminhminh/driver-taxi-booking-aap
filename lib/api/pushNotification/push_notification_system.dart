@@ -1,4 +1,4 @@
-// ignore_for_file: body_might_complete_normally_nullable, unused_local_variable, prefer_if_null_operators
+// ignore_for_file: body_might_complete_normally_nullable, unused_local_variable, prefer_if_null_operators, unnecessary_null_comparison
 
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:driver_taxi_booking_app/api/services/pushnotice_services.dart';
@@ -89,36 +89,46 @@ class PushNotificationSystem {
       audioPlayer.play();
 
       TripDetails tripDetailsInfo = TripDetails();
-      double pickUpLat = pushNoticeServices.pickUpLat != null
-          ? pushNoticeServices.pickUpLat!
+
+      // pickUpLatLng
+      double pickUpLat = double.parse(pushNoticeServices.pickUpLat!) != null
+          ? double.parse(pushNoticeServices.pickUpLat!)
           : double.parse((dataSnapshot.snapshot.value! as Map)["pickUpLatLng"]
               ["latitude"]);
-      double pickUpLng = pushNoticeServices.pickUpLng != null
-          ? pushNoticeServices.pickUpLng!
+      double pickUpLng = double.parse(pushNoticeServices.pickUpLng!) != null
+          ? double.parse(pushNoticeServices.pickUpLng!)
           : double.parse((dataSnapshot.snapshot.value! as Map)["pickUpLatLng"]
               ["longitude"]);
       tripDetailsInfo.pickUpLatLng = LatLng(pickUpLat, pickUpLng);
 
+      // pickupAddress
       tripDetailsInfo.pickupAddress =
-          (dataSnapshot.snapshot.value! as Map)["pickUpAddress"];
+          pushNoticeServices.pickupAddress.toString() != null
+              ? pushNoticeServices.pickupAddress.toString()
+              : (dataSnapshot.snapshot.value! as Map)["pickUpAddress"];
 
-      double dropOffLat = pushNoticeServices.dropOffLat != null
-          ? pushNoticeServices.dropOffLat!
+      //dropOffLatLng
+      double dropOffLat = double.parse(pushNoticeServices.dropOffLat!) != null
+          ? double.parse(pushNoticeServices.dropOffLat!)
           : double.parse((dataSnapshot.snapshot.value! as Map)["dropOffLatLng"]
               ["latitude"]);
-      double dropOffLng = pushNoticeServices.dropOffLng != null
-          ? pushNoticeServices.dropOffLng!
+      double dropOffLng = double.parse(pushNoticeServices.dropOffLng!) != null
+          ? double.parse(pushNoticeServices.dropOffLng!)
           : double.parse((dataSnapshot.snapshot.value! as Map)["dropOffLatLng"]
               ["longitude"]);
       tripDetailsInfo.dropOffLatLng = LatLng(dropOffLat, dropOffLng);
 
+//  dropOffAddress
       tripDetailsInfo.dropOffAddress = pushNoticeServices.dropOffAddress != null
           ? pushNoticeServices.dropOffAddress
           : (dataSnapshot.snapshot.value! as Map)["dropOffAddress"];
 
+      // username
       tripDetailsInfo.userName = pushNoticeServices.userName != null
           ? pushNoticeServices.userName
           : (dataSnapshot.snapshot.value! as Map)["userName"];
+
+      // userphone
       tripDetailsInfo.userPhone = pushNoticeServices.userPhone != null
           ? pushNoticeServices.userPhone
           : (dataSnapshot.snapshot.value! as Map)["userPhone"];

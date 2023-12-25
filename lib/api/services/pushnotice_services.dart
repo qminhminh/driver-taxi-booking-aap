@@ -11,17 +11,17 @@ import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
 class PushNoticeServices {
-  double? pickUpLat;
-  double? pickUpLng;
+  String? pickUpLat;
+  String? pickUpLng;
   String? pickupAddress;
-  double? dropOffLat;
-  double? dropOffLng;
+  String? dropOffLat;
+  String? dropOffLng;
   String? dropOffAddress;
   String? userName;
   String? userPhone;
 
   // get trip request using id
-  getTripRequest({
+  void getTripRequest({
     required BuildContext context,
     required String tripId,
   }) async {
@@ -53,11 +53,6 @@ class PushNoticeServices {
               dropOffLng = data["dropOffLatLng"]["longitude"];
               userName = data["userName"];
               dropOffLng = data["userPhone"];
-
-              showSnackBar(context, pickUpLat.toString());
-              showSnackBar(context, pickUpLng.toString());
-              showSnackBar(context, dropOffLat.toString());
-              showSnackBar(context, dropOffLng.toString());
             } catch (e) {
               showSnackBar(context, e.toString());
             }

@@ -91,12 +91,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
     Geofire.setLocation(
       FirebaseAuth.instance.currentUser!.uid,
-      homeService.lat!.toDouble() != null
-          ? homeService.lat!.toDouble()
+      homeService.lat != null
+          ? homeService.lat!
           : currentPositionOfUser!.latitude,
-      homeService.long!.toDouble() != null
-          ? homeService.lat!.toDouble()
-          : currentPositionOfUser!.latitude,
+      homeService.long != null
+          ? homeService.long!
+          : currentPositionOfUser!.longitude,
     );
 
     newTripRequestReference = FirebaseDatabase.instance
