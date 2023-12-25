@@ -98,6 +98,7 @@ class _NotificationDialogState extends State<NotificationDialog> {
             context: context,
             driverid: [FirebaseAuth.instance.currentUser!.uid],
             trip: "accepted");
+        cMethods.timeaccept = 'accepted';
 
         //disable homepage location updates
         cMethods.turnOffLocationUpdatesForHomePage();

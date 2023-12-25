@@ -1,14 +1,14 @@
 // ignore_for_file: unnecessary_import, unnecessary_null_comparison, avoid_print, prefer_if_null_operators
 
 import 'package:driver_taxi_booking_app/api/pushNotification/push_notification_system.dart';
+import 'package:driver_taxi_booking_app/common/methods/common_methods.dart';
+import 'package:driver_taxi_booking_app/common/methods/map_theme_methods.dart';
 import 'package:driver_taxi_booking_app/features/home/services/home_services.dart';
 import 'package:driver_taxi_booking_app/global/global_var.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:flutter_geofire/flutter_geofire.dart';
 import 'package:geolocator/geolocator.dart';
@@ -26,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final Completer<GoogleMapController> googleMapCompleterController =
       Completer<GoogleMapController>();
   GoogleMapController? controllerGoogleMap;
-  Position? currentPositionOfUser;
+  Position? currentPositionOfDriver;
   Color colorToShow = Colors.green;
   String titleToShow = "GO ONLINE NOW";
   bool isDriverAvailable = false;
@@ -34,30 +34,17 @@ class _HomeScreenState extends State<HomeScreen> {
   final HomeService homeService = HomeService();
   late Timer _timer;
   bool time = false;
-
-  void updateMapTheme(GoogleMapController controller) {
-    getJsonFileFromThemes("themes/dark_style.json")
-        .then((value) => setGoogleMapStyle(value, controller));
-  }
-
-  Future<String> getJsonFileFromThemes(String mapStylePath) async {
-    ByteData byteData = await rootBundle.load(mapStylePath);
-    var list = byteData.buffer
-        .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes);
-    return utf8.decode(list);
-  }
-
-  setGoogleMapStyle(String googleMapStyle, GoogleMapController controller) {
-    controller.setMapStyle(googleMapStyle);
-  }
+  MapThemeMethods themeMethods = MapThemeMethods();
+  final CommonMethods cMethods = CommonMethods();
 
   getCurrentLiveLocationOfDriver() async {
     Position positionOfUser = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.bestForNavigation);
-    currentPositionOfUser = positionOfUser;
+    currentPositionOfDriver = positionOfUser;
+    driverCurrentPosition = currentPositionOfDriver;
 
     LatLng positionOfUserInLatLng = LatLng(
-        currentPositionOfUser!.latitude, currentPositionOfUser!.longitude);
+        currentPositionOfDriver!.latitude, currentPositionOfDriver!.longitude);
 
     CameraPosition cameraPosition =
         CameraPosition(target: positionOfUserInLatLng, zoom: 15);
@@ -73,16 +60,16 @@ class _HomeScreenState extends State<HomeScreen> {
     homeService.updateAndsavegeofire(
         context: context,
         uid: FirebaseAuth.instance.currentUser!.uid,
-        latitude: currentPositionOfUser!.latitude,
-        longtitude: currentPositionOfUser!.longitude);
+        latitude: currentPositionOfDriver!.latitude,
+        longtitude: currentPositionOfDriver!.longitude);
 
     _timer = Timer.periodic(const Duration(seconds: 7), (Timer timer) {
-      if (time) {
+      if (time || cMethods.timeaccept == 'accepted') {
         homeService.updateLongandLat(
             context: context,
             uid: FirebaseAuth.instance.currentUser!.uid,
-            latitude: currentPositionOfUser!.latitude,
-            longtitude: currentPositionOfUser!.longitude);
+            latitude: currentPositionOfDriver!.latitude,
+            longtitude: currentPositionOfDriver!.longitude);
       }
     });
 
@@ -93,10 +80,10 @@ class _HomeScreenState extends State<HomeScreen> {
       FirebaseAuth.instance.currentUser!.uid,
       homeService.lat != null
           ? homeService.lat!
-          : currentPositionOfUser!.latitude,
+          : currentPositionOfDriver!.latitude,
       homeService.long != null
-          ? homeService.long!
-          : currentPositionOfUser!.longitude,
+          ? homeService.lat!
+          : currentPositionOfDriver!.longitude,
     );
 
     newTripRequestReference = FirebaseDatabase.instance
@@ -112,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
   setAndGetLocationUpdates() {
     positionStreamHomePage =
         Geolocator.getPositionStream().listen((Position position) {
-      currentPositionOfUser = position;
+      currentPositionOfDriver = position;
 
       if (isDriverAvailable == true) {
         Geofire.setLocation(
@@ -179,7 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
             initialCameraPosition: googlePlexInitialPosition,
             onMapCreated: (GoogleMapController mapController) {
               controllerGoogleMap = mapController;
-              updateMapTheme(controllerGoogleMap!);
+              themeMethods.updateMapTheme(controllerGoogleMap!);
 
               googleMapCompleterController.complete(controllerGoogleMap);
 
