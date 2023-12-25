@@ -132,6 +132,10 @@ class PushNotificationSystem {
       tripDetailsInfo.userPhone = pushNoticeServices.userPhone != null
           ? pushNoticeServices.userPhone
           : (dataSnapshot.snapshot.value! as Map)["userPhone"];
+      // trip Id
+      tripDetailsInfo.tripID = pushNoticeServices.tripid != null
+          ? pushNoticeServices.tripid
+          : tripID;
 
       showDialog(
         context: context,

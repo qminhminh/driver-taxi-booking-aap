@@ -15,6 +15,8 @@ class HomeService {
   double? lat;
   double? long;
   FirebaseMessaging firebaseCloudMessaging = FirebaseMessaging.instance;
+
+  // update and save geofire
   void updateAndsavegeofire({
     required BuildContext context,
     required String uid,
@@ -44,6 +46,7 @@ class HomeService {
     }
   }
 
+// update long anf lat
   updateLongandLat({
     required BuildContext context,
     required String uid,
@@ -84,6 +87,7 @@ class HomeService {
     }
   }
 
+// delete geofire driver online
   void deleteGeofireDriverOnline({
     required BuildContext context,
     required String idf,
@@ -115,6 +119,7 @@ class HomeService {
     }
   }
 
+// update drivce token
   upatedeviceToken({
     required BuildContext context,
   }) async {
@@ -139,6 +144,35 @@ class HomeService {
           context: context,
           onSuccess: () {
             showSnackBar(context, 'Update device token');
+          });
+    } catch (e) {
+      showSnackBar(context, e.toString());
+    }
+  }
+
+// remove location driver
+  void removeLocationDriver({
+    required BuildContext context,
+  }) async {
+    try {
+      final userprovider = Provider.of<UserProvider>(context, listen: false);
+
+      http.Response res = await http.delete(
+        Uri.parse('$uri/api/users/remove-location/driver'),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'x-auth-token': userprovider.user.token
+        },
+        body: jsonEncode({
+          'idm': userprovider.user.id,
+        }),
+      );
+
+      httpErrorHandle(
+          response: res,
+          context: context,
+          onSuccess: () {
+            showSnackBar(context, "Successfull");
           });
     } catch (e) {
       showSnackBar(context, e.toString());

@@ -19,7 +19,8 @@ class PushNoticeServices {
   String? dropOffAddress;
   String? userName;
   String? userPhone;
-
+  String? tripid;
+  String? newTripStatus;
   // get trip request using id
   void getTripRequest({
     required BuildContext context,
@@ -53,9 +54,76 @@ class PushNoticeServices {
               dropOffLng = data["dropOffLatLng"]["longitude"];
               userName = data["userName"];
               dropOffLng = data["userPhone"];
+              tripid = data['tripID'];
             } catch (e) {
               showSnackBar(context, e.toString());
             }
+          });
+    } catch (e) {
+      showSnackBar(context, e.toString());
+    }
+  }
+
+  // get new trip status
+  void getNewTripStatus({
+    required BuildContext context,
+    required String idf,
+  }) async {
+    try {
+      final userprovider = Provider.of<UserProvider>(context, listen: false);
+      http.Response res = await http.post(
+        Uri.parse('$uri/api/users/get-new-trip-status/driver'),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'x-auth-token': userprovider.user.token
+        },
+        body: jsonEncode({
+          'idf': idf,
+        }),
+      );
+
+      print(res.body);
+
+      httpErrorHandle(
+          response: res,
+          context: context,
+          onSuccess: () {
+            try {
+              dynamic data = jsonDecode(res.body);
+              newTripStatus = data['newTripStatus'];
+            } catch (e) {
+              showSnackBar(context, e.toString());
+            }
+          });
+    } catch (e) {
+      showSnackBar(context, e.toString());
+    }
+  }
+
+  void updateNewStatus({
+    required BuildContext context,
+    required List<String> driverid,
+    required String trip,
+  }) async {
+    try {
+      final userprovider = Provider.of<UserProvider>(context, listen: false);
+      http.Response res = await http.put(
+        Uri.parse('$uri/api/users/update-status/drivers'),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'x-auth-token': userprovider.user.token
+        },
+        body: jsonEncode({
+          'driverid': driverid,
+          'trip': trip,
+        }),
+      );
+
+      httpErrorHandle(
+          response: res,
+          context: context,
+          onSuccess: () {
+            showSnackBar(context, "Update new stutus");
           });
     } catch (e) {
       showSnackBar(context, e.toString());

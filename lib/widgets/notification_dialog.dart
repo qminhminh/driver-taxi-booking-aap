@@ -1,8 +1,16 @@
 // ignore_for_file: must_be_immutable, unused_local_variable
 
 import 'dart:async';
+import 'package:driver_taxi_booking_app/api/services/pushnotice_services.dart';
+import 'package:driver_taxi_booking_app/common/methods/common_methods.dart';
+import 'package:driver_taxi_booking_app/constants/utils.dart';
+import 'package:driver_taxi_booking_app/features/home/services/home_services.dart';
+import 'package:driver_taxi_booking_app/features/newtrippage/screens/new_trip_page.dart';
 import 'package:driver_taxi_booking_app/global/global_var.dart';
 import 'package:driver_taxi_booking_app/models/trip_details.dart';
+import 'package:driver_taxi_booking_app/widgets/loading_dialog.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 class NotificationDialog extends StatefulWidget {
@@ -19,6 +27,9 @@ class NotificationDialog extends StatefulWidget {
 
 class _NotificationDialogState extends State<NotificationDialog> {
   String tripRequestStatus = "";
+  CommonMethods cMethods = CommonMethods();
+  final PushNoticeServices pushNoticeServices = PushNoticeServices();
+  final HomeService homeService = HomeService();
 
   cancelNotificationDialogAfter20Sec() {
     const oneTickPerSecond = Duration(seconds: 1);
@@ -45,6 +56,67 @@ class _NotificationDialogState extends State<NotificationDialog> {
     super.initState();
 
     cancelNotificationDialogAfter20Sec();
+    pushNoticeServices.getNewTripStatus(
+        context: context, idf: FirebaseAuth.instance.currentUser!.uid);
+  }
+
+  // check new trip status for driver
+  checkAvailabilityOfTripRequest(BuildContext context) async {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) => LoadingDialog(
+        messageText: 'please wait...',
+      ),
+    );
+
+    DatabaseReference driverTripStatusRef = FirebaseDatabase.instance
+        .ref()
+        .child("drivers")
+        .child(FirebaseAuth.instance.currentUser!.uid)
+        .child("newTripStatus");
+
+    await driverTripStatusRef.once().then((snap) {
+      Navigator.pop(context);
+      Navigator.pop(context);
+
+      String newTripStatusValue = "";
+      if (snap.snapshot.value != null &&
+          pushNoticeServices.newTripStatus != null) {
+        newTripStatusValue = pushNoticeServices.newTripStatus != null
+            ? pushNoticeServices.newTripStatus!
+            : snap.snapshot.value.toString();
+      } else {
+        cMethods.displaySnackBar("Trip Request Not Found.", context);
+        showSnackBar(context, pushNoticeServices.newTripStatus!);
+      }
+
+      if (newTripStatusValue == widget.tripDetailsInfo!.tripID &&
+          pushNoticeServices.newTripStatus == widget.tripDetailsInfo!.tripID) {
+        driverTripStatusRef.set("accepted");
+        pushNoticeServices.updateNewStatus(
+            context: context,
+            driverid: [FirebaseAuth.instance.currentUser!.uid],
+            trip: "accepted");
+
+        //disable homepage location updates
+        cMethods.turnOffLocationUpdatesForHomePage();
+        homeService.removeLocationDriver(context: context);
+
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (c) =>
+                    NewTripPage(newTripDetailsInfo: widget.tripDetailsInfo)));
+      } else if (newTripStatusValue == "cancelled") {
+        cMethods.displaySnackBar(
+            "Trip Request has been Cancelled by user.", context);
+      } else if (newTripStatusValue == "timeout") {
+        cMethods.displaySnackBar("Trip Request timed out.", context);
+      } else {
+        cMethods.displaySnackBar("Trip Request removed. Not Found.", context);
+      }
+    });
   }
 
   @override
@@ -213,6 +285,7 @@ class _NotificationDialogState extends State<NotificationDialog> {
                         setState(() {
                           tripRequestStatus = "accepted";
                         });
+                        checkAvailabilityOfTripRequest(context);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
