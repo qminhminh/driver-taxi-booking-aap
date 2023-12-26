@@ -55,6 +55,9 @@ dependencies:
   flutter_polyline_points: ^2.0.0
   url_launcher: ^6.2.2
   connectivity_plus: ^5.0.2
+  zego_uikit_prebuilt_call: ^3.17.10
+  zego_uikit_signaling_plugin: ^2.7.0
+  
 
 dev_dependencies:
   flutter_test:

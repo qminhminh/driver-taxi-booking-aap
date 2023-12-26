@@ -64,7 +64,18 @@ class _HomeScreenState extends State<HomeScreen> {
         longtitude: currentPositionOfDriver!.longitude);
 
     _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
-      if (time || cMethods.timeaccept == 'accepted') {
+      if (!cMethods.timeaccept) {
+        time = false;
+        _timer.cancel();
+
+        Timer? tempTimer = _timer;
+        if (tempTimer != null && tempTimer.isActive) {
+          tempTimer.cancel();
+          print("Timer stopped");
+        }
+        _timer = Timer(Duration.zero, () {});
+      }
+      if (time && cMethods.timeaccept) {
         homeService.updateLongandLat(
             context: context,
             uid: FirebaseAuth.instance.currentUser!.uid,

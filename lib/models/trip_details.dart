@@ -11,6 +11,7 @@ class TripDetails {
 
   String? userName;
   String? userPhone;
+  String? userID;
 
   TripDetails({
     this.tripID,
@@ -20,5 +21,6 @@ class TripDetails {
     this.dropOffAddress,
     this.userName,
     this.userPhone,
+    this.userID,
   });
 }

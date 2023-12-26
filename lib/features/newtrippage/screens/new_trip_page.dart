@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'package:driver_taxi_booking_app/common/methods/common_methods.dart';
 import 'package:driver_taxi_booking_app/common/methods/map_theme_methods.dart';
+import 'package:driver_taxi_booking_app/features/callpages/call_page_zego.dart';
 import 'package:driver_taxi_booking_app/features/home/services/home_services.dart';
 import 'package:driver_taxi_booking_app/features/newtrippage/services/new_trip_service.dart';
 import 'package:driver_taxi_booking_app/global/global_var.dart';
@@ -403,9 +404,31 @@ class _NewTripPageState extends State<NewTripPage> {
                             );
                           },
                           child: const Padding(
-                            padding: EdgeInsets.only(right: 10),
+                            padding: EdgeInsets.only(right: 0),
                             child: Icon(
-                              Icons.phone_android_outlined,
+                              Icons.phone,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                        // vidoe call user icon btn
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => CallPage(
+                                        callID:
+                                            widget.newTripDetailsInfo!.tripID!,
+                                        name: widget
+                                            .newTripDetailsInfo!.userName!,
+                                        id: widget
+                                            .newTripDetailsInfo!.userID!)));
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.only(right: 0),
+                            child: Icon(
+                              Icons.video_call,
                               color: Colors.grey,
                             ),
                           ),

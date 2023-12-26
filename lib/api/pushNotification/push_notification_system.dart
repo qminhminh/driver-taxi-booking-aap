@@ -128,6 +128,7 @@ class PushNotificationSystem {
           ? pushNoticeServices.tripid
           : tripID;
 
+      tripDetailsInfo.userID = (dataSnapshot.snapshot.value! as Map)["userID"];
       showDialog(
         context: context,
         builder: (BuildContext context) => NotificationDialog(

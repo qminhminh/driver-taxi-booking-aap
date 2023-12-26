@@ -10,7 +10,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 
 class CommonMethods {
-  String timeaccept = '';
+  bool timeaccept = true;
   checkConnectivity(BuildContext context) async {
     var connectionResult = await Connectivity().checkConnectivity();
 
@@ -30,6 +30,7 @@ class CommonMethods {
 
   turnOffLocationUpdatesForHomePage() {
     positionStreamHomePage!.pause();
+    timeaccept = false;
 
     Geofire.removeLocation(FirebaseAuth.instance.currentUser!.uid);
   }
