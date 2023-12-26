@@ -63,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
         latitude: currentPositionOfDriver!.latitude,
         longtitude: currentPositionOfDriver!.longitude);
 
-    _timer = Timer.periodic(const Duration(seconds: 7), (Timer timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
       if (time || cMethods.timeaccept == 'accepted') {
         homeService.updateLongandLat(
             context: context,

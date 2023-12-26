@@ -1,4 +1,4 @@
-// ignore_for_file: must_be_immutable, prefer_collection_literals, use_build_context_synchronously, prefer_const_constructors, unused_local_variable, avoid_function_literals_in_foreach_calls, prefer_if_null_operators
+// ignore_for_file: must_be_immutable, prefer_collection_literals, use_build_context_synchronously, prefer_const_constructors, unused_local_variable, avoid_function_literals_in_foreach_calls, prefer_if_null_operators, prefer_interpolation_to_compose_strings
 
 import 'dart:async';
 import 'package:driver_taxi_booking_app/common/methods/common_methods.dart';
@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class NewTripPage extends StatefulWidget {
   TripDetails? newTripDetailsInfo;
@@ -38,9 +39,15 @@ class _NewTripPageState extends State<NewTripPage> {
   Set<Circle> circlesSet = Set<Circle>();
   Set<Polyline> polyLinesSet = Set<Polyline>();
   BitmapDescriptor? carMarkerIcon;
-  NewTripService newTripService = NewTripService();
+  final NewTripService newTripService = NewTripService();
   final HomeService homeService = HomeService();
+  bool directionRequested = false;
+  String statusOfTrip = "accepted";
+  String durationText = "", distanceText = "";
+  String buttonTitleText = "ARRIVED";
+  Color buttonColor = Colors.indigoAccent;
 
+  // image
   makeMarker() {
     if (carMarkerIcon == null) {
       ImageConfiguration configuration =
@@ -54,6 +61,7 @@ class _NewTripPageState extends State<NewTripPage> {
     }
   }
 
+  // draw route and poly line and marker and circle
   obtainDirectionAndDrawRoute(
       sourceLocationLatLng, destinationLocationLatLng) async {
     showDialog(
@@ -63,17 +71,20 @@ class _NewTripPageState extends State<NewTripPage> {
               messageText: 'Please wait...',
             ));
 
+    // get direction details
     var tripDetailsInfo = await CommonMethods.getDirectionDetailsFromAPI(
         sourceLocationLatLng, destinationLocationLatLng);
 
     Navigator.pop(context);
 
     PolylinePoints pointsPolyline = PolylinePoints();
+    // add position in list
     List<PointLatLng> latLngPoints =
         pointsPolyline.decodePolyline(tripDetailsInfo!.encodedPoints!);
 
     coordinatesPolylineLatLngList.clear();
 
+    // check is not emty
     if (latLngPoints.isNotEmpty) {
       latLngPoints.forEach((PointLatLng pointLatLng) {
         coordinatesPolylineLatLngList
@@ -133,13 +144,14 @@ class _NewTripPageState extends State<NewTripPage> {
     controllerGoogleMap!
         .animateCamera(CameraUpdate.newLatLngBounds(boundsLatLng, 72));
 
-    //add marker
+    //add marker driver
     Marker sourceMarker = Marker(
       markerId: const MarkerId('sourceID'),
       position: sourceLocationLatLng,
       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
     );
 
+    //add marker customer
     Marker destinationMarker = Marker(
       markerId: const MarkerId('destinationID'),
       position: destinationLocationLatLng,
@@ -151,7 +163,7 @@ class _NewTripPageState extends State<NewTripPage> {
       markersSet.add(destinationMarker);
     });
 
-    //add circle
+    //add circle driver
     Circle sourceCircle = Circle(
       circleId: const CircleId('sourceCircleID'),
       strokeColor: Colors.orange,
@@ -161,6 +173,7 @@ class _NewTripPageState extends State<NewTripPage> {
       fillColor: Colors.green,
     );
 
+    //add circle driver
     Circle destinationCircle = Circle(
       circleId: const CircleId('destinationCircleID'),
       strokeColor: Colors.green,
@@ -176,6 +189,7 @@ class _NewTripPageState extends State<NewTripPage> {
     });
   }
 
+  // get location driver and marker camera driver
   getLiveLocationUpdatesOfDriver() {
     LatLng lastPositionLatLng = LatLng(0, 0);
 
@@ -212,6 +226,7 @@ class _NewTripPageState extends State<NewTripPage> {
       lastPositionLatLng = driverCurrentPositionLatLng;
 
       //update Trip Details Information
+      updateTripDetailsInformation();
 
       //update driver location to tripRequest
       Map updatedLocationOfDriver = {
@@ -222,6 +237,8 @@ class _NewTripPageState extends State<NewTripPage> {
             ? homeService.long
             : driverCurrentPosition!.longitude,
       };
+
+      // update lat and long firebase
       FirebaseDatabase.instance
           .ref()
           .child("tripRequests")
@@ -229,6 +246,7 @@ class _NewTripPageState extends State<NewTripPage> {
           .child("driverLocation")
           .set(updatedLocationOfDriver);
 
+      // update lat nad long driver mongo
       newTripService.updateTripDriverLocation(
           context: context,
           tripId: widget.newTripDetailsInfo!.tripID!.toString(),
@@ -239,6 +257,41 @@ class _NewTripPageState extends State<NewTripPage> {
               ? homeService.long.toString()
               : driverCurrentPosition!.longitude.toString());
     });
+  }
+
+  // update trip detail infomation
+  updateTripDetailsInformation() async {
+    if (!directionRequested) {
+      directionRequested = true;
+
+      if (driverCurrentPosition == null) {
+        return;
+      }
+
+      var driverLocationLatLng = LatLng(
+          driverCurrentPosition!.latitude, driverCurrentPosition!.longitude);
+
+      LatLng dropOffDestinationLocationLatLng;
+      if (statusOfTrip == "accepted") {
+        dropOffDestinationLocationLatLng =
+            widget.newTripDetailsInfo!.pickUpLatLng!;
+      } else {
+        dropOffDestinationLocationLatLng =
+            widget.newTripDetailsInfo!.dropOffLatLng!;
+      }
+
+      var directionDetailsInfo = await CommonMethods.getDirectionDetailsFromAPI(
+          driverLocationLatLng, dropOffDestinationLocationLatLng);
+
+      if (directionDetailsInfo != null) {
+        directionRequested = false;
+
+        setState(() {
+          durationText = directionDetailsInfo.durationTextString!;
+          distanceText = directionDetailsInfo.distanceTextString!;
+        });
+      }
+    }
   }
 
   @override
@@ -282,6 +335,235 @@ class _NewTripPageState extends State<NewTripPage> {
 
               getLiveLocationUpdatesOfDriver();
             },
+          ),
+
+          ///trip details
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Colors.black87,
+                borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(17),
+                    topLeft: Radius.circular(17)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 17,
+                    spreadRadius: 0.5,
+                    offset: Offset(0.7, 0.7),
+                  ),
+                ],
+              ),
+              height: 256,
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    //trip duration
+                    Center(
+                      child: Text(
+                        durationText + " - " + distanceText,
+                        style: const TextStyle(
+                          color: Colors.green,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(
+                      height: 5,
+                    ),
+
+                    //user name - call user icon btn
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        //user name
+                        Text(
+                          widget.newTripDetailsInfo!.userName!,
+                          style: const TextStyle(
+                            color: Colors.green,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        //call user icon btn
+                        GestureDetector(
+                          onTap: () {
+                            launchUrl(
+                              Uri.parse(
+                                  "tel://${widget.newTripDetailsInfo!.userPhone.toString()}"),
+                            );
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.only(right: 10),
+                            child: Icon(
+                              Icons.phone_android_outlined,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+
+                        //chat user icon btn
+                        GestureDetector(
+                          onTap: () {},
+                          child: const Padding(
+                            padding: EdgeInsets.only(right: 0),
+                            child: Icon(
+                              Icons.chat_sharp,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(
+                      height: 15,
+                    ),
+
+                    //pickup icon and location
+                    Row(
+                      children: [
+                        Image.asset(
+                          "assets/images/initial.png",
+                          height: 16,
+                          width: 16,
+                        ),
+                        Expanded(
+                          child: Text(
+                            widget.newTripDetailsInfo!.pickupAddress.toString(),
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(
+                      height: 15,
+                    ),
+
+                    //dropoff icon and location
+                    Row(
+                      children: [
+                        Image.asset(
+                          "assets/images/final.png",
+                          height: 16,
+                          width: 16,
+                        ),
+                        Expanded(
+                          child: Text(
+                            widget.newTripDetailsInfo!.dropOffAddress
+                                .toString(),
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(
+                      height: 25,
+                    ),
+
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          //arrived button
+                          if (statusOfTrip == "accepted") {
+                            setState(() {
+                              buttonTitleText = "START TRIP";
+                              buttonColor = Colors.green;
+                            });
+
+                            statusOfTrip = "arrived";
+
+                            // update status fire
+                            FirebaseDatabase.instance
+                                .ref()
+                                .child("tripRequests")
+                                .child(widget.newTripDetailsInfo!.tripID!)
+                                .child("status")
+                                .set("arrived");
+
+                            // update status trip server
+                            newTripService.updateStattusTripRequest(
+                                context: context,
+                                status: "arrived",
+                                tripId: widget.newTripDetailsInfo!.tripID!);
+
+                            showDialog(
+                                barrierDismissible: false,
+                                context: context,
+                                builder: (BuildContext context) =>
+                                    LoadingDialog(
+                                      messageText: 'Please wait...',
+                                    ));
+
+                            await obtainDirectionAndDrawRoute(
+                              widget.newTripDetailsInfo!.pickUpLatLng,
+                              widget.newTripDetailsInfo!.dropOffLatLng,
+                            );
+
+                            Navigator.pop(context);
+                          }
+                          //start trip button
+                          else if (statusOfTrip == "arrived") {
+                            setState(() {
+                              buttonTitleText = "END TRIP";
+                              buttonColor = Colors.amber;
+                            });
+
+                            statusOfTrip = "ontrip";
+
+                            // update trip status
+                            FirebaseDatabase.instance
+                                .ref()
+                                .child("tripRequests")
+                                .child(widget.newTripDetailsInfo!.tripID!)
+                                .child("status")
+                                .set("ontrip");
+
+                            // update status trip
+                            newTripService.updateStattusTripRequest(
+                                context: context,
+                                tripId: widget.newTripDetailsInfo!.tripID!,
+                                status: "ontrip");
+                          }
+                          //end trip button
+                          else if (statusOfTrip == "ontrip") {
+                            //end the trip
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: buttonColor,
+                        ),
+                        child: Text(
+                          buttonTitleText,
+                          style: const TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ],
       ),

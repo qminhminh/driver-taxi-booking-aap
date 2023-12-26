@@ -43,4 +43,31 @@ class NewTripService {
       showSnackBar(context, e.toString());
     }
   }
+
+  // update new trip request
+  void updateStattusTripRequest({
+    required BuildContext context,
+    required String tripId,
+    required String status,
+  }) async {
+    try {
+      final userprovider = Provider.of<UserProvider>(context, listen: false);
+
+      http.Response res = await http.put(
+        Uri.parse('$uri/api/users/update-status-trip-request/driver'),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'x-auth-token': userprovider.user.token
+        },
+        body: jsonEncode({
+          'tripID': tripId,
+          "status": status,
+        }),
+      );
+
+      httpErrorHandle(response: res, context: context, onSuccess: () {});
+    } catch (e) {
+      showSnackBar(context, e.toString());
+    }
+  }
 }

@@ -91,14 +91,10 @@ class PushNotificationSystem {
       TripDetails tripDetailsInfo = TripDetails();
 
       // pickUpLatLng
-      double pickUpLat = double.parse(pushNoticeServices.pickUpLat!) != null
-          ? double.parse(pushNoticeServices.pickUpLat!)
-          : double.parse((dataSnapshot.snapshot.value! as Map)["pickUpLatLng"]
-              ["latitude"]);
-      double pickUpLng = double.parse(pushNoticeServices.pickUpLng!) != null
-          ? double.parse(pushNoticeServices.pickUpLng!)
-          : double.parse((dataSnapshot.snapshot.value! as Map)["pickUpLatLng"]
-              ["longitude"]);
+      double pickUpLat = double.parse(
+          (dataSnapshot.snapshot.value! as Map)["pickUpLatLng"]["latitude"]);
+      double pickUpLng = double.parse(
+          (dataSnapshot.snapshot.value! as Map)["pickUpLatLng"]["longitude"]);
       tripDetailsInfo.pickUpLatLng = LatLng(pickUpLat, pickUpLng);
 
       // pickupAddress
@@ -108,20 +104,15 @@ class PushNotificationSystem {
               : (dataSnapshot.snapshot.value! as Map)["pickUpAddress"];
 
       //dropOffLatLng
-      double dropOffLat = double.parse(pushNoticeServices.dropOffLat!) != null
-          ? double.parse(pushNoticeServices.dropOffLat!)
-          : double.parse((dataSnapshot.snapshot.value! as Map)["dropOffLatLng"]
-              ["latitude"]);
-      double dropOffLng = double.parse(pushNoticeServices.dropOffLng!) != null
-          ? double.parse(pushNoticeServices.dropOffLng!)
-          : double.parse((dataSnapshot.snapshot.value! as Map)["dropOffLatLng"]
-              ["longitude"]);
+      double dropOffLat = double.parse(
+          (dataSnapshot.snapshot.value! as Map)["dropOffLatLng"]["latitude"]);
+      double dropOffLng = double.parse(
+          (dataSnapshot.snapshot.value! as Map)["dropOffLatLng"]["longitude"]);
       tripDetailsInfo.dropOffLatLng = LatLng(dropOffLat, dropOffLng);
 
 //  dropOffAddress
-      tripDetailsInfo.dropOffAddress = pushNoticeServices.dropOffAddress != null
-          ? pushNoticeServices.dropOffAddress
-          : (dataSnapshot.snapshot.value! as Map)["dropOffAddress"];
+      tripDetailsInfo.dropOffAddress =
+          (dataSnapshot.snapshot.value! as Map)["dropOffAddress"];
 
       // username
       tripDetailsInfo.userName = pushNoticeServices.userName != null
