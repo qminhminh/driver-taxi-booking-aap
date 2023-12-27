@@ -26,7 +26,7 @@ class PushNotificationService {
       "click_action": "FLUTTER_NOTIFICATION_CLICK",
       "id": "1",
       "status": "done",
-      "idf": idf,
+      "idf": deviceToken,
     };
 
     List<Map<String, dynamic>> actions = [
@@ -45,7 +45,11 @@ class PushNotificationService {
       "data": dataMapNotification,
       "priority": "high",
       "to": deviceToken,
-      "actions": actions,
+      "android": {
+        "notification": {
+          "actions": actions,
+        },
+      },
     };
 
     await http.post(

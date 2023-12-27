@@ -415,17 +415,6 @@ class _NewTripPageState extends State<NewTripPage> {
                         // vidoe call user icon btn
                         GestureDetector(
                           onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => CallPage(
-                                        callID:
-                                            widget.newTripDetailsInfo!.userID!,
-                                        name: widget
-                                            .newTripDetailsInfo!.userName!,
-                                        id: widget
-                                            .newTripDetailsInfo!.userID!)));
-
                             DatabaseReference tokenOfCurrentDriverRef =
                                 FirebaseDatabase.instance
                                     .ref()
@@ -444,9 +433,16 @@ class _NewTripPageState extends State<NewTripPage> {
 
                                 PushNotificationService
                                     .sendNotificationToSelectedDriver(
-                                        deviceToken,
-                                        context,
-                                        widget.newTripDetailsInfo!.userID!);
+                                        deviceToken, context, deviceToken);
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) => CallPage(
+                                            callID: deviceToken,
+                                            name: widget
+                                                .newTripDetailsInfo!.userName!,
+                                            id: widget
+                                                .newTripDetailsInfo!.userID!)));
                               } else {
                                 return;
                               }
