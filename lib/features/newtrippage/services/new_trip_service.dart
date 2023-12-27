@@ -70,4 +70,58 @@ class NewTripService {
       showSnackBar(context, e.toString());
     }
   }
+
+  // update fare amount trip request
+  void updateFareAmountTripRequest({
+    required BuildContext context,
+    required String tripId,
+    required String fareAmount,
+  }) async {
+    try {
+      final userprovider = Provider.of<UserProvider>(context, listen: false);
+
+      http.Response res = await http.put(
+        Uri.parse('$uri/api/users/update-fare-amount-trip-request/driver'),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'x-auth-token': userprovider.user.token
+        },
+        body: jsonEncode({
+          'tripID': tripId,
+          "fareAmount": fareAmount,
+        }),
+      );
+
+      httpErrorHandle(response: res, context: context, onSuccess: () {});
+    } catch (e) {
+      showSnackBar(context, e.toString());
+    }
+  }
+
+  // update earning driver
+  void updateEarningDriver({
+    required BuildContext context,
+    required String idf,
+    required String earnings,
+  }) async {
+    try {
+      final userprovider = Provider.of<UserProvider>(context, listen: false);
+
+      http.Response res = await http.put(
+        Uri.parse('$uri/api/users/update-earning/driver'),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'x-auth-token': userprovider.user.token
+        },
+        body: jsonEncode({
+          'idf': idf,
+          "earnings": earnings,
+        }),
+      );
+
+      httpErrorHandle(response: res, context: context, onSuccess: () {});
+    } catch (e) {
+      showSnackBar(context, e.toString());
+    }
+  }
 }

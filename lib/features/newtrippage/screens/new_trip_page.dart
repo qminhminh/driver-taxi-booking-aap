@@ -10,6 +10,8 @@ import 'package:driver_taxi_booking_app/features/newtrippage/services/new_trip_s
 import 'package:driver_taxi_booking_app/global/global_var.dart';
 import 'package:driver_taxi_booking_app/models/trip_details.dart';
 import 'package:driver_taxi_booking_app/widgets/loading_dialog.dart';
+import 'package:driver_taxi_booking_app/widgets/payment_dialog.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -48,6 +50,7 @@ class _NewTripPageState extends State<NewTripPage> {
   String durationText = "", distanceText = "";
   String buttonTitleText = "ARRIVED";
   Color buttonColor = Colors.indigoAccent;
+  CommonMethods cMethods = CommonMethods();
 
   // image
   makeMarker() {
@@ -294,6 +297,100 @@ class _NewTripPageState extends State<NewTripPage> {
         });
       }
     }
+  }
+
+  endTripNow() async {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) => LoadingDialog(
+        messageText: 'Please wait...',
+      ),
+    );
+
+    var driverCurrentLocationLatLng = LatLng(
+        driverCurrentPosition!.latitude, driverCurrentPosition!.longitude);
+
+    var directionDetailsEndTripInfo =
+        await CommonMethods.getDirectionDetailsFromAPI(
+      widget.newTripDetailsInfo!.pickUpLatLng!, //pickup
+      driverCurrentLocationLatLng, //destination
+    );
+
+    Navigator.pop(context);
+
+    String fareAmount =
+        (cMethods.calculateFareAmount(directionDetailsEndTripInfo!)).toString();
+
+    await FirebaseDatabase.instance
+        .ref()
+        .child("tripRequests")
+        .child(widget.newTripDetailsInfo!.tripID!)
+        .child("fareAmount")
+        .set(fareAmount);
+
+    // updte status server
+    newTripService.updateFareAmountTripRequest(
+        context: context,
+        tripId: widget.newTripDetailsInfo!.tripID!,
+        fareAmount: fareAmount);
+
+    await FirebaseDatabase.instance
+        .ref()
+        .child("tripRequests")
+        .child(widget.newTripDetailsInfo!.tripID!)
+        .child("status")
+        .set("ended");
+
+    // updte status server
+    newTripService.updateStattusTripRequest(
+        context: context,
+        tripId: widget.newTripDetailsInfo!.tripID!,
+        status: "ended");
+
+    positionStreamNewTripPage!.cancel();
+
+    //dialog for collecting fare amount
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) => PaymentDialog(fareAmount: fareAmount),
+    );
+
+    //save fare amount to driver total earnings
+    saveFareAmountToDriverTotalEarnings(fareAmount);
+  }
+
+  saveFareAmountToDriverTotalEarnings(String fareAmount) async {
+    DatabaseReference driverEarningsRef = FirebaseDatabase.instance
+        .ref()
+        .child("drivers")
+        .child(FirebaseAuth.instance.currentUser!.uid)
+        .child("earnings");
+
+    await driverEarningsRef.once().then((snap) {
+      if (snap.snapshot.value != null) {
+        double previousTotalEarnings =
+            double.parse(snap.snapshot.value.toString());
+        double fareAmountForTrip = double.parse(fareAmount);
+
+        double newTotalEarnings = previousTotalEarnings + fareAmountForTrip;
+
+        driverEarningsRef.set(newTotalEarnings);
+        // update server
+        newTripService.updateEarningDriver(
+            context: context,
+            idf: FirebaseAuth.instance.currentUser!.uid,
+            earnings: newTotalEarnings.toString());
+      } else {
+        driverEarningsRef.set(fareAmount);
+        // update server
+        newTripService.updateEarningDriver(
+            context: context,
+            idf: FirebaseAuth.instance.currentUser!.uid,
+            earnings: fareAmount.toString());
+      }
+    });
   }
 
   @override
@@ -593,6 +690,7 @@ class _NewTripPageState extends State<NewTripPage> {
                           //end trip button
                           else if (statusOfTrip == "ontrip") {
                             //end the trip
+                            endTripNow();
                           }
                         },
                         style: ElevatedButton.styleFrom(

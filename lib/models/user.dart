@@ -15,22 +15,25 @@ class User {
   final String phone;
   final String photo;
   final String idf;
+  final String earnings;
 
-  User(
-      {required this.id,
-      required this.blockStatus,
-      required this.carColor,
-      required this.carModel,
-      required this.carNumber,
-      required this.deviceToken,
-      required this.token,
-      required this.email,
-      required this.password,
-      required this.name,
-      required this.newTripStatus,
-      required this.phone,
-      required this.photo,
-      required this.idf});
+  User({
+    required this.id,
+    required this.blockStatus,
+    required this.carColor,
+    required this.carModel,
+    required this.carNumber,
+    required this.deviceToken,
+    required this.token,
+    required this.email,
+    required this.password,
+    required this.name,
+    required this.newTripStatus,
+    required this.phone,
+    required this.photo,
+    required this.idf,
+    required this.earnings,
+  });
 
   Map<String, dynamic> toMap() {
     return {
@@ -48,6 +51,7 @@ class User {
       'phone': phone,
       'photo': photo,
       'idf': idf,
+      'earnings': earnings,
     };
   }
 
@@ -67,6 +71,7 @@ class User {
       phone: map['phone'] ?? '',
       photo: map['photo'] ?? '',
       idf: map['idf'] ?? '',
+      earnings: map['earnings'] ?? '',
     );
   }
 
@@ -89,6 +94,7 @@ class User {
     String? phone,
     String? photo,
     String? idf,
+    String? earnings,
   }) {
     return User(
       id: id ?? this.id,
@@ -105,6 +111,7 @@ class User {
       phone: phone ?? this.phone,
       photo: photo ?? this.photo,
       idf: idf ?? this.idf,
+      earnings: earnings ?? this.earnings,
     );
   }
 }

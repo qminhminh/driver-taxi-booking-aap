@@ -41,6 +41,7 @@ class AuthSerVice {
         deviceToken: '',
         newTripStatus: '',
         idf: idf,
+        earnings: '',
       );
 
       http.Response res = await http.post(
