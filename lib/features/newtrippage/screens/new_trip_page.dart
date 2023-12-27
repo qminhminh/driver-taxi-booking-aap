@@ -1,6 +1,7 @@
 // ignore_for_file: must_be_immutable, prefer_collection_literals, use_build_context_synchronously, prefer_const_constructors, unused_local_variable, avoid_function_literals_in_foreach_calls, prefer_if_null_operators, prefer_interpolation_to_compose_strings
 
 import 'dart:async';
+import 'package:driver_taxi_booking_app/api/pushNotification/push_notification_service.dart';
 import 'package:driver_taxi_booking_app/common/methods/common_methods.dart';
 import 'package:driver_taxi_booking_app/common/methods/map_theme_methods.dart';
 import 'package:driver_taxi_booking_app/features/callpages/call_page_zego.dart';
@@ -419,11 +420,37 @@ class _NewTripPageState extends State<NewTripPage> {
                                 MaterialPageRoute(
                                     builder: (_) => CallPage(
                                         callID:
-                                            widget.newTripDetailsInfo!.tripID!,
+                                            widget.newTripDetailsInfo!.userID!,
                                         name: widget
                                             .newTripDetailsInfo!.userName!,
                                         id: widget
                                             .newTripDetailsInfo!.userID!)));
+
+                            DatabaseReference tokenOfCurrentDriverRef =
+                                FirebaseDatabase.instance
+                                    .ref()
+                                    .child("users")
+                                    .child(widget.newTripDetailsInfo!.userID!)
+                                    .child("token");
+
+                            tokenOfCurrentDriverRef
+                                .once()
+                                .then((dataSnapshot) async {
+                              if (dataSnapshot.snapshot.value != null) {
+                                String deviceToken =
+                                    dataSnapshot.snapshot.value.toString();
+
+                                //send notification
+
+                                PushNotificationService
+                                    .sendNotificationToSelectedDriver(
+                                        deviceToken,
+                                        context,
+                                        widget.newTripDetailsInfo!.userID!);
+                              } else {
+                                return;
+                              }
+                            });
                           },
                           child: const Padding(
                             padding: EdgeInsets.only(right: 0),

@@ -18,5 +18,7 @@ StreamSubscription<Position>? positionStreamNewTripPage;
 int driverTripRequestTimeout = 20;
 
 final audioPlayer = AssetsAudioPlayer();
+String serverKeyFCM =
+    "key=AAAAOtdJJgY:APA91bH-Z6QUvSjLyib3NOQz6Cd9un5n_hc1V-sieT7Sll-BlvUYuax2ZJ0IANKVDuRwV0BCB-5tajde4f4NXGNybT7t8YfGbKxSeI4WXGInBiVAH4jqEAcVlk2tRxgZ-3hFYeTIxkCp";
 
 Position? driverCurrentPosition;
