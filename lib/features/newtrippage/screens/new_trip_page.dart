@@ -9,6 +9,7 @@ import 'package:driver_taxi_booking_app/features/home/services/home_services.dar
 import 'package:driver_taxi_booking_app/features/newtrippage/services/new_trip_service.dart';
 import 'package:driver_taxi_booking_app/global/global_var.dart';
 import 'package:driver_taxi_booking_app/models/trip_details.dart';
+import 'package:driver_taxi_booking_app/providers/user_provider.dart';
 import 'package:driver_taxi_booking_app/widgets/loading_dialog.dart';
 import 'package:driver_taxi_booking_app/widgets/payment_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class NewTripPage extends StatefulWidget {
@@ -351,14 +353,18 @@ class _NewTripPageState extends State<NewTripPage> {
     positionStreamNewTripPage!.cancel();
 
     //dialog for collecting fare amount
+    displayPaymentDialog(fareAmount);
+
+    //save fare amount to driver total earnings
+    saveFareAmountToDriverTotalEarnings(fareAmount);
+  }
+
+  displayPaymentDialog(fareAmount) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) => PaymentDialog(fareAmount: fareAmount),
     );
-
-    //save fare amount to driver total earnings
-    saveFareAmountToDriverTotalEarnings(fareAmount);
   }
 
   saveFareAmountToDriverTotalEarnings(String fareAmount) async {
@@ -391,6 +397,58 @@ class _NewTripPageState extends State<NewTripPage> {
             earnings: fareAmount.toString());
       }
     });
+  }
+
+  saveDriverDataToTripInfo() async {
+    final userprovider = Provider.of<UserProvider>(context, listen: false).user;
+
+    Map<String, dynamic> driverDataMap = {
+      "status": "accepted",
+      "driverID": FirebaseAuth.instance.currentUser!.uid,
+      "driverName": driverName,
+      "driverPhone": driverPhone,
+      "driverPhoto": driverPhoto,
+      "carDetails": carColor + " - " + carModel + " - " + carNumber,
+    };
+
+    Map<String, dynamic> driverCurrentLocation = {
+      'latitude': driverCurrentPosition!.latitude.toString(),
+      'longitude': driverCurrentPosition!.longitude.toString(),
+    };
+
+    await FirebaseDatabase.instance
+        .ref()
+        .child("tripRequests")
+        .child(widget.newTripDetailsInfo!.tripID!)
+        .update(driverDataMap);
+
+    await FirebaseDatabase.instance
+        .ref()
+        .child("tripRequests")
+        .child(widget.newTripDetailsInfo!.tripID!)
+        .child("driverLocation")
+        .update(driverCurrentLocation);
+
+    newTripService.updateInfomationDriverInTripRequest(
+        context: context,
+        status: "accepted",
+        driverID: FirebaseAuth.instance.currentUser!.uid,
+        driverPhone: driverPhone,
+        driverPhoto: driverPhoto,
+        carColor: carColor,
+        carModel: carModel,
+        carNumber: carNumber,
+        latitude: driverCurrentPosition!.latitude.toString(),
+        longitude: driverCurrentPosition!.longitude.toString(),
+        tripId: widget.newTripDetailsInfo!.tripID!,
+        driverName: driverName);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    saveDriverDataToTripInfo();
   }
 
   @override

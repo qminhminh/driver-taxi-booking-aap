@@ -124,4 +124,49 @@ class NewTripService {
       showSnackBar(context, e.toString());
     }
   }
+
+  // update earning driver
+  void updateInfomationDriverInTripRequest({
+    required BuildContext context,
+    required String tripId,
+    required String status,
+    required String driverID,
+    required String driverName,
+    required String driverPhone,
+    required String driverPhoto,
+    required String carColor,
+    required String carModel,
+    required String carNumber,
+    required String latitude,
+    required String longitude,
+  }) async {
+    try {
+      final userprovider = Provider.of<UserProvider>(context, listen: false);
+
+      http.Response res = await http.put(
+        Uri.parse('$uri/api/users/update-information/driver'),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'x-auth-token': userprovider.user.token
+        },
+        body: jsonEncode({
+          'tripId': tripId,
+          'status': status,
+          "driverID": driverID,
+          "driverName": driverName,
+          "driverPhone": driverPhone,
+          "driverPhoto": driverPhoto,
+          "carColor": carColor,
+          "carModel": carModel,
+          "carNumber": carNumber,
+          "latitude": latitude,
+          "longitude": longitude,
+        }),
+      );
+
+      httpErrorHandle(response: res, context: context, onSuccess: () {});
+    } catch (e) {
+      showSnackBar(context, e.toString());
+    }
+  }
 }
