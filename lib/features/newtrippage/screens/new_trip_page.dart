@@ -1,13 +1,15 @@
-// ignore_for_file: must_be_immutable, prefer_collection_literals, use_build_context_synchronously, prefer_const_constructors, unused_local_variable, avoid_function_literals_in_foreach_calls, prefer_if_null_operators, prefer_interpolation_to_compose_strings
+// ignore_for_file: must_be_immutable, prefer_collection_literals, use_build_context_synchronously, prefer_const_constructors, unused_local_variable, avoid_function_literals_in_foreach_calls, prefer_if_null_operators, prefer_interpolation_to_compose_strings, unnecessary_null_comparison
 
 import 'dart:async';
 import 'package:driver_taxi_booking_app/api/pushNotification/push_notification_service.dart';
 import 'package:driver_taxi_booking_app/common/methods/common_methods.dart';
 import 'package:driver_taxi_booking_app/common/methods/map_theme_methods.dart';
 import 'package:driver_taxi_booking_app/features/callpages/call_page_zego.dart';
+import 'package:driver_taxi_booking_app/features/chat/screens/chat_screen.dart';
 import 'package:driver_taxi_booking_app/features/home/services/home_services.dart';
 import 'package:driver_taxi_booking_app/features/newtrippage/services/new_trip_service.dart';
 import 'package:driver_taxi_booking_app/global/global_var.dart';
+import 'package:driver_taxi_booking_app/global/trip_var.dart';
 import 'package:driver_taxi_booking_app/models/trip_details.dart';
 import 'package:driver_taxi_booking_app/providers/user_provider.dart';
 import 'package:driver_taxi_booking_app/widgets/loading_dialog.dart';
@@ -615,7 +617,27 @@ class _NewTripPageState extends State<NewTripPage> {
 
                         //chat user icon btn
                         GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            DatabaseReference tripRequestRef = FirebaseDatabase
+                                .instance
+                                .ref()
+                                .child("tripRequests")
+                                .child(widget.newTripDetailsInfo!.tripID!);
+                            tripRequestRef.once().then((snapshot) {
+                              if (snapshot.snapshot != null) {
+                                userIdC =
+                                    (snapshot.snapshot.value as Map)["userID"];
+                              }
+                            });
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ChatScreen(
+                                          name: userName,
+                                          image: userPhotoC,
+                                          id: userIdC,
+                                        )));
+                          },
                           child: const Padding(
                             padding: EdgeInsets.only(right: 0),
                             child: Icon(
