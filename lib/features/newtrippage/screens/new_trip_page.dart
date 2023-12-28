@@ -430,18 +430,19 @@ class _NewTripPageState extends State<NewTripPage> {
         .update(driverCurrentLocation);
 
     newTripService.updateInfomationDriverInTripRequest(
-        context: context,
-        status: "accepted",
-        driverID: FirebaseAuth.instance.currentUser!.uid,
-        driverPhone: driverPhone,
-        driverPhoto: driverPhoto,
-        carColor: carColor,
-        carModel: carModel,
-        carNumber: carNumber,
-        latitude: driverCurrentPosition!.latitude.toString(),
-        longitude: driverCurrentPosition!.longitude.toString(),
-        tripId: widget.newTripDetailsInfo!.tripID!,
-        driverName: driverName);
+      context: context,
+      status: "accepted",
+      driverID: FirebaseAuth.instance.currentUser!.uid,
+      driverName: userprovider.name,
+      driverPhone: driverPhone,
+      driverPhoto: driverPhoto,
+      carColor: carColor,
+      carModel: carModel,
+      carNumber: carNumber,
+      latitude: driverCurrentPosition!.latitude.toString(),
+      longitude: driverCurrentPosition!.longitude.toString(),
+      tripId: widget.newTripDetailsInfo!.tripID!,
+    );
   }
 
   @override

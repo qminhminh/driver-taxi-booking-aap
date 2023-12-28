@@ -6,7 +6,6 @@ import 'package:driver_taxi_booking_app/constants/error_handing.dart';
 import 'package:driver_taxi_booking_app/constants/global_variables.dart';
 import 'package:driver_taxi_booking_app/constants/utils.dart';
 import 'package:driver_taxi_booking_app/providers/user_provider.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -32,9 +31,6 @@ class NewTripService {
           'tripID': tripId,
           'latitude': latitude,
           'longitude': longitude,
-          'userName': userprovider.user.name,
-          'userId': FirebaseAuth.instance.currentUser!.uid,
-          "userPhone": userprovider.user.phone,
         }),
       );
 
