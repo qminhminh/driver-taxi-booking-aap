@@ -2,6 +2,7 @@
 
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:driver_taxi_booking_app/api/services/pushnotice_services.dart';
+import 'package:driver_taxi_booking_app/features/callpages/call_page_zego.dart';
 import 'package:driver_taxi_booking_app/global/global_var.dart';
 import 'package:driver_taxi_booking_app/models/trip_details.dart';
 import 'package:driver_taxi_booking_app/widgets/loading_dialog.dart';
@@ -136,5 +137,60 @@ class PushNotificationSystem {
         ),
       );
     });
+  }
+
+  // recive notice call video
+  startListeningCallVideoNotification(BuildContext context) async {
+    ///1. Terminated
+    //When the app is completely closed and it receives a push notification
+    FirebaseMessaging.instance
+        .getInitialMessage()
+        .then((RemoteMessage? messageRemote) {
+      if (messageRemote != null) {
+        String idf = messageRemote.data["idf"];
+
+        retrieveCallVideo(idf, context);
+      }
+    });
+
+    ///2. Foreground
+    //When the app is open and it receives a push notification
+    FirebaseMessaging.onMessage.listen((RemoteMessage? messageRemote) {
+      if (messageRemote != null) {
+        String idf = messageRemote.data["idf"];
+
+        retrieveCallVideo(idf, context);
+      }
+    });
+
+    ///3. Background
+    //When the app is in the background and it receives a push notification
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage? messageRemote) {
+      if (messageRemote != null) {
+        String idf = messageRemote.data["idf"];
+
+        retrieveCallVideo(idf, context);
+      }
+    });
+  }
+
+  retrieveCallVideo(String idf, BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) =>
+          LoadingDialog(messageText: "getting details..."),
+    );
+    audioPlayer.open(
+      Audio("assets/audio/reng.mp3"),
+    );
+
+    audioPlayer.play();
+
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => CallPage(callID: idf, name: "You", id: idf)));
+    audioPlayer.stop();
   }
 }

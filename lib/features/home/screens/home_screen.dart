@@ -152,8 +152,12 @@ class _HomeScreenState extends State<HomeScreen> {
   initializePushNotificationSystem() {
     PushNotificationSystem notificationSystem = PushNotificationSystem();
     notificationSystem.generateDeviceRegistrationToken();
+
+    // notification
     notificationSystem.startListeningForNewNotification(context);
 
+    // call vidoe
+    notificationSystem.startListeningCallVideoNotification(context);
     homeService.upatedeviceToken(context: context);
   }
 
