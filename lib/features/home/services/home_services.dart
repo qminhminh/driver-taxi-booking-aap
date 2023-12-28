@@ -6,6 +6,7 @@ import 'package:driver_taxi_booking_app/constants/error_handing.dart';
 import 'package:driver_taxi_booking_app/constants/global_variables.dart';
 import 'package:driver_taxi_booking_app/constants/utils.dart';
 import 'package:driver_taxi_booking_app/providers/user_provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -135,6 +136,7 @@ class HomeService {
               body: jsonEncode({
                 'email': userprovider.user.email,
                 'devicetoken': deviceRecognitionToken,
+                'uid': FirebaseAuth.instance.currentUser!.uid
               }));
 
       print(res.body);
