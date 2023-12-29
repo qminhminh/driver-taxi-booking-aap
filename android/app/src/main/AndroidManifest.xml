@@ -14,7 +14,7 @@
     <application
         android:label="Driver Booking"
         android:name="${applicationName}"
-        android:icon="@mipmap/uberexec">
+        android:icon="@mipmap/logotaxi">
         <activity
             android:name=".MainActivity"
             android:exported="true"

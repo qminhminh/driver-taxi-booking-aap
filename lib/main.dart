@@ -3,8 +3,8 @@
 import 'package:driver_taxi_booking_app/constants/global_variables.dart';
 import 'package:driver_taxi_booking_app/features/auth/screens/auth_screen.dart';
 import 'package:driver_taxi_booking_app/features/auth/services/auth_service.dart';
-import 'package:driver_taxi_booking_app/features/home/screens/home_screen.dart';
 import 'package:driver_taxi_booking_app/firebase_options.dart';
+import 'package:driver_taxi_booking_app/pages/dashboard.dart';
 import 'package:driver_taxi_booking_app/providers/user_provider.dart';
 import 'package:driver_taxi_booking_app/router.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -79,7 +79,7 @@ class _MyAppState extends State<MyApp> {
       ),
       onGenerateRoute: (settings) => generateRooute(settings),
       home: Provider.of<UserProvider>(context).user.token.isNotEmpty
-          ? const HomeScreen()
+          ? const Dashboard()
           : const AuthScreen(),
     );
   }
