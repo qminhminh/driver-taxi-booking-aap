@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_interpolation_to_compose_strings
 
+import 'package:driver_taxi_booking_app/features/trip/services/trip_service.dart';
+import 'package:driver_taxi_booking_app/models/trip_request_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +16,20 @@ class TripsHistoryPage extends StatefulWidget {
 class _TripsHistoryPageState extends State<TripsHistoryPage> {
   final completedTripRequestsOfCurrentDriver =
       FirebaseDatabase.instance.ref().child("tripRequests");
+
+  final TripRequestService tripRequestService = TripRequestService();
+  List<TripRequest>? list;
+
+  @override
+  void initState() {
+    super.initState();
+
+    fetchAllTRipRequest();
+  }
+
+  fetchAllTRipRequest() async {
+    list = await tripRequestService.getAllTripRequest(context);
+  }
 
   @override
   Widget build(BuildContext context) {
