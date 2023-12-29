@@ -627,13 +627,16 @@ class _NewTripPageState extends State<NewTripPage> {
                               if (snapshot.snapshot != null) {
                                 userIdC =
                                     (snapshot.snapshot.value as Map)["userID"];
+
+                                userNameC = (snapshot.snapshot.value
+                                    as Map)["userName"];
                               }
                             });
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => ChatScreen(
-                                          name: userName,
+                                          name: userNameC,
                                           image: userPhotoC,
                                           id: userIdC,
                                         )));

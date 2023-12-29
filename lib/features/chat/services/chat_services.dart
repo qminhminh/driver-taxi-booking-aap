@@ -25,8 +25,8 @@ class ChatServices {
           'x-auth-token': userprovider.user.token,
         },
         body: jsonEncode({
-          'idcus': userprovider.user.id,
-          'iddriver': toId,
+          'iddriver': userprovider.user.id,
+          'idcus': toId,
         }),
       );
 
@@ -75,8 +75,8 @@ class ChatServices {
           'x-auth-token': userprovider.user.token,
         },
         body: jsonEncode({
-          'idcus': userprovider.user.id,
-          'iddriver': toId,
+          'idcus': toId,
+          'iddriver': userprovider.user.id,
           'sent': sent,
           'msg': msg,
         }),
@@ -112,8 +112,8 @@ class ChatServices {
           'x-auth-token': userprovider.user.token,
         },
         body: jsonEncode({
-          'idcus': userprovider.user.id,
-          'iddriver': toId,
+          'idcus': toId,
+          'iddriver': userprovider.user.id,
           'sent': sent,
         }),
       );

@@ -9,7 +9,7 @@ class SocketMethods {
   // List<Message> listmess = [];
 
   // create room chat client
-  void createRoomChat(String message, String idcus, String iddriver) {
+  void createRoomChat(String message, String iddriver, String idcus) {
     final time = DateTime.now().millisecondsSinceEpoch.toString();
 
     if (message.isNotEmpty) {
