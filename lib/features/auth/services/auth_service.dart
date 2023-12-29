@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:driver_taxi_booking_app/constants/error_handing.dart';
 import 'package:driver_taxi_booking_app/constants/global_variables.dart';
 import 'package:driver_taxi_booking_app/constants/utils.dart';
+import 'package:driver_taxi_booking_app/features/auth/screens/auth_screen.dart';
 import 'package:driver_taxi_booking_app/features/home/screens/home_screen.dart';
 import 'package:driver_taxi_booking_app/models/user.dart';
 import 'package:driver_taxi_booking_app/providers/user_provider.dart';
@@ -138,6 +139,23 @@ class AuthSerVice {
         print(userProvider);
         print(response);
       }
+    } catch (e) {
+      showSnackBar(context, e.toString());
+    }
+  }
+
+  // logout
+  void logOut(BuildContext context) async {
+    try {
+      SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
+      await sharedPreferences.setString('x-auth-token', '');
+
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AuthScreen.routeName,
+        (route) => false,
+      );
     } catch (e) {
       showSnackBar(context, e.toString());
     }

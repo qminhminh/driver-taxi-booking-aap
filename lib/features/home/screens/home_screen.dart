@@ -1,4 +1,4 @@
-// ignore_for_file: unnecessary_import, unnecessary_null_comparison, avoid_print, prefer_if_null_operators
+// ignore_for_file: unnecessary_import, unnecessary_null_comparison, avoid_print, prefer_if_null_operators, prefer_const_constructors
 
 import 'package:driver_taxi_booking_app/api/pushNotification/push_notification_system.dart';
 import 'package:driver_taxi_booking_app/common/methods/common_methods.dart';
@@ -228,11 +228,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         isDismissible: false,
                         builder: (BuildContext context) {
                           return Container(
-                            decoration: const BoxDecoration(
-                              color: Colors.black87,
-                              boxShadow: [
+                            decoration: BoxDecoration(
+                              color: Colors.green[300],
+                              boxShadow: const [
                                 BoxShadow(
-                                  color: Colors.grey,
+                                  color: Colors.black,
                                   blurRadius: 5.0,
                                   spreadRadius: 0.5,
                                   offset: Offset(
@@ -258,7 +258,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     textAlign: TextAlign.center,
                                     style: const TextStyle(
                                       fontSize: 22,
-                                      color: Colors.white70,
+                                      color: Colors.black,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -271,7 +271,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         : "You are about to go offline, you will stop receiving new trip requests from users.",
                                     textAlign: TextAlign.center,
                                     style: const TextStyle(
-                                      color: Colors.white30,
+                                      color: Colors.black,
                                     ),
                                   ),
                                   const SizedBox(

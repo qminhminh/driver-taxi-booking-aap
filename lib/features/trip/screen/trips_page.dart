@@ -61,7 +61,7 @@ class _TripsPageState extends State<TripsPage> {
           //Total Trips
           Center(
             child: Container(
-              color: Colors.indigo,
+              color: Colors.green[300],
               width: 300,
               child: Padding(
                 padding: const EdgeInsets.all(18.0),
@@ -69,7 +69,7 @@ class _TripsPageState extends State<TripsPage> {
                   children: [
                     Image.asset(
                       "assets/images/totaltrips.png",
-                      width: 170,
+                      width: 190,
                     ),
                     const SizedBox(
                       height: 10,
@@ -77,13 +77,13 @@ class _TripsPageState extends State<TripsPage> {
                     const Text(
                       "Total Trips:",
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Colors.black,
                       ),
                     ),
                     Text(
                       currentDriverTotalTripsCompleted,
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: Colors.black,
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
@@ -106,7 +106,7 @@ class _TripsPageState extends State<TripsPage> {
             },
             child: Center(
               child: Container(
-                color: Colors.indigo,
+                color: Colors.green[300],
                 width: 300,
                 child: Padding(
                   padding: const EdgeInsets.all(18.0),
@@ -114,7 +114,7 @@ class _TripsPageState extends State<TripsPage> {
                     children: [
                       Image.asset(
                         "assets/images/tripscompleted.png",
-                        width: 170,
+                        width: 190,
                       ),
                       const SizedBox(
                         height: 10,
@@ -122,7 +122,7 @@ class _TripsPageState extends State<TripsPage> {
                       const Text(
                         "Check Trips History",
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Colors.black,
                         ),
                       ),
                     ],
