@@ -19,6 +19,7 @@ class TripRequest {
   final String driverPhoto;
   final String fareAmount;
   final String status;
+  final double ratings;
 
   TripRequest({
     required this.id,
@@ -39,6 +40,7 @@ class TripRequest {
     required this.driverPhoto,
     required this.fareAmount,
     required this.status,
+    required this.ratings,
   });
 
   Map<String, dynamic> toMap() {
@@ -59,6 +61,7 @@ class TripRequest {
       'driverPhoto': driverPhoto,
       'fareAmount': fareAmount,
       'status': status,
+      'ratings': ratings,
     };
   }
 
@@ -82,6 +85,7 @@ class TripRequest {
       driverPhoto: map['driverPhoto'] ?? '',
       fareAmount: map['fareAmount'] ?? '',
       status: map['status'] ?? 'new',
+      ratings: (map['ratings'] ?? 0).toDouble(),
     );
   }
 

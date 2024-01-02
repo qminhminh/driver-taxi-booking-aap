@@ -18,6 +18,7 @@ class UserProvider extends ChangeNotifier {
     photo: '',
     idf: '',
     earnings: '',
+    ratings: [],
   );
 
   User get user => _user;

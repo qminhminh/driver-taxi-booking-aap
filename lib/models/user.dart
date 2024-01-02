@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:driver_taxi_booking_app/models/rating_model.dart';
+
 class User {
   final String id;
   final String blockStatus;
@@ -16,6 +18,7 @@ class User {
   final String photo;
   final String idf;
   final String earnings;
+  final List<Rating> ratings;
 
   User({
     required this.id,
@@ -33,6 +36,7 @@ class User {
     required this.photo,
     required this.idf,
     required this.earnings,
+    required this.ratings,
   });
 
   Map<String, dynamic> toMap() {
@@ -52,6 +56,7 @@ class User {
       'photo': photo,
       'idf': idf,
       'earnings': earnings,
+      'ratings': ratings,
     };
   }
 
@@ -72,6 +77,10 @@ class User {
       photo: map['photo'] ?? '',
       idf: map['idf'] ?? '',
       earnings: map['earnings'] ?? '',
+      ratings: (map['ratings'] as List<dynamic>?)
+              ?.map((rating) => Rating.fromMap(rating))
+              .toList() ??
+          [],
     );
   }
 
@@ -95,6 +104,7 @@ class User {
     String? photo,
     String? idf,
     String? earnings,
+    List<Rating>? ratings,
   }) {
     return User(
       id: id ?? this.id,
@@ -112,6 +122,7 @@ class User {
       photo: photo ?? this.photo,
       idf: idf ?? this.idf,
       earnings: earnings ?? this.earnings,
+      ratings: ratings ?? [],
     );
   }
 }

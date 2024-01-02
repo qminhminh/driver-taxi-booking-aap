@@ -43,6 +43,7 @@ class AuthSerVice {
         newTripStatus: '',
         idf: idf,
         earnings: '',
+        ratings: [],
       );
 
       http.Response res = await http.post(
