@@ -1,11 +1,14 @@
 // ignore_for_file: avoid_print, body_might_complete_normally_catch_error
 
 import 'dart:io';
+import 'package:driver_taxi_booking_app/features/auth/services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/widgets.dart';
 
 class APIs {
+  final AuthSerVice authSerVice = AuthSerVice();
   String image = '';
   // Sign up user
   Future<void> uploadImageToStorage(
@@ -85,7 +88,7 @@ class APIs {
   }
 
   // sign in user
-  signInUser(emailController, passwordController) async {
+  signInUser(emailController, passwordController, BuildContext context) async {
     final User? userFirebase = (await FirebaseAuth.instance
             .signInWithEmailAndPassword(
       email: emailController.text.trim(),
@@ -107,9 +110,11 @@ class APIs {
             //userName = (snap.snapshot.value as Map)["name"];
           } else {
             FirebaseAuth.instance.signOut();
+            authSerVice.logOut(context);
           }
         } else {
           FirebaseAuth.instance.signOut();
+          authSerVice.logOut(context);
         }
       });
     }

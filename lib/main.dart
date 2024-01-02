@@ -79,7 +79,9 @@ class _MyAppState extends State<MyApp> {
       ),
       onGenerateRoute: (settings) => generateRooute(settings),
       home: Provider.of<UserProvider>(context).user.token.isNotEmpty
-          ? const Dashboard()
+          ? Provider.of<UserProvider>(context).user.blockStatus == 'no'
+              ? const Dashboard()
+              : const AuthScreen()
           : const AuthScreen(),
     );
   }
