@@ -206,9 +206,6 @@ class _AuthScreenState extends State<AuthScreen> {
                           color: Colors.orange,
                           onTap: () async {
                             if (_signUpFormKey.currentState!.validate()) {
-                              signUpUser();
-
-                              // api sign up firebase
                               await APIs().uploadImageToStorage(
                                 imageFile,
                                 '',
@@ -220,6 +217,9 @@ class _AuthScreenState extends State<AuthScreen> {
                                 _carModelController,
                                 _carNumberController,
                               );
+                              signUpUser();
+
+                              // api sign up firebase
                             }
                           },
                         )
