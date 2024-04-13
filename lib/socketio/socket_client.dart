@@ -8,7 +8,7 @@ class SocketClient {
 
   SocketClient._internal() {
     socket = IO.io(
-        'http://192.168.1.7:6000',
+        'http://192.168.1.3:6000',
         IO.OptionBuilder()
             .setTransports(['websocket']) // for Flutter or Dart VM
             .enableAutoConnect()
